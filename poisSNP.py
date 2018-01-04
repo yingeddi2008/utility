@@ -31,7 +31,7 @@ def generateCSV(vlist,genomelength,stepsize,windowsize,outcsv):
 	
 def main():
 	parser = argparse.ArgumentParser(description=
-	''' Take an input of VCF file generated from GATK SNP analysis pipeline against a bacteria genome, and output the frequency of SNP occurrence and Poisson probability.''',
+	''' Take an input of VCF file generated from GATK SNP analysis pipeline against a bacteria genome, and output the frequency of SNP occurrence and Poisson probability. Those calculations are all based on a given window size and step size, which both could be modified by users.''',
 		epilog="No warranty comes with this script. Author: ying.eddi2008@gmail.com. \nAny suggestions or bugs report are welcomed.",add_help=False,formatter_class=argparse.RawTextHelpFormatter)
 	##### Required arguments #####
 	required = parser.add_argument_group('required arguments')
