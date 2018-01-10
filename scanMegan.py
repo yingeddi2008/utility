@@ -12,7 +12,7 @@ def rline(lnin):
 	line=re.split("; |;",ln)
 	return line
 
-def bacteria_megan(meganout,pattern):
+def bacteria_megan(meganout,pattern,level='g'):
 	na=meganout.replace(pattern,"")
 	unkn = []
 	bacdict = {}
@@ -26,11 +26,11 @@ def bacteria_megan(meganout,pattern):
 			if ln1[2::2] == ln2[2::2] and 'd__Bacteria' in ln2:
 				tax = ln1[2::2]
 				tmp = dict(x.split("__") for x in tax)
-				if 'g' in tmp and tmp['g'] not in bacdict:
-					bacdict[tmp['g']] = [ln1[0],ln2[0]]
-				if 'g' in tmp and tmp['g'] in bacdict:
-					bacdict[tmp['g']].append(ln1[0])
-					bacdict[tmp['g']].append(ln2[0]) 
+				if level in tmp and tmp[level] not in bacdict:
+					bacdict[tmp[level]] = [ln1[0],ln2[0]]
+				if level in tmp and tmp[level] in bacdict:
+					bacdict[tmp[level]].append(ln1[0])
+					bacdict[tmp[level]].append(ln2[0]) 
 	###### write out file for unknowns #######
 	try:
 		os.remove(na+".unknown")
@@ -82,15 +82,16 @@ def main():
 	required.add_argument("-p","--pattern", help="input file pattern to be parsed",type=str,required=True)
 	##### Optional arguments #####
 	optional = parser.add_argument_group('optional arguments')
-	optional.add_argument("-m","--minR",default=100,help="minimum number of reads to write out in a bacteria genus [default: 100]",type=int)
+	optional.add_argument("-m","--minR",default=1000,help="minimum number of reads to write out in a bacteria taxonomy level [default: 1000]",type=int)
+	optional.add_argument("-l","--level",default='g',help="at what taxonomy level to cluster, choices are g stands for genus, f stands for family, o stands for order, c stands for class [default: g]",choices=['g','f','o','c'],type=str)
 	optional.add_argument("-h","--help",help="show this help message and exit",action="help")
 	args = parser.parse_args()
 	
-	##### 
+	##### start ######
 	samlist = glob.glob(args.pattern)
 	if len(samlist) < 1:
 		sys.exit("No samples to scan through, there might be a problem with your input pattern, please correct!")
-	tor = map(bacteria_megan,samlist,itertools.repeat(args.pattern,len(samlist)))
+	tor = map(bacteria_megan,samlist,itertools.repeat(args.pattern,len(samlist)),itertools.repeat(args.level,len(samlist)))
 	bacnames = [d.keys() for d in tor ]
 	fbac = list(set([y for x in bacnames for y in x]))
 	map(writeBac,fbac,itertools.repeat(tor,len(fbac)),itertools.repeat(args.minR,len(fbac)))
